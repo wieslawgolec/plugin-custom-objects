@@ -1,0 +1,15 @@
+{% extends '@MauticCore/Default/content.html.twig' %}
+{% block headerTitle %}Import — {{ objectName }}{% endblock %}
+{% block content %}
+<div class="panel panel-default"><div class="panel-body">
+  <p>{{ 'customobjects.import_help'|trans|default('Upload a CSV with header row including contact_id and field columns.') }}</p>
+  <form method="post" enctype="multipart/form-data" action="{{ path('mautic_customobjects_import_csv', {objectName: objectName}) }}">
+    <div class="form-group">
+      <label for="file">CSV file</label>
+      <input type="file" name="file" id="file" accept=".csv,text/csv" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> Import</button>
+    <a href="{{ path('mautic_customobjects_item_index', {objectName: objectName}) }}" class="btn btn-default">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

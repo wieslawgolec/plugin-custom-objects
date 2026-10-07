@@ -1,0 +1,35 @@
+{% extends '@MauticCore/Default/content.html.twig' %}
+{% block headerTitle %}{{ object.plural|default(objectName) }}{% endblock %}
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{{ object.plural|default(objectName) }}
+      <a href="{{ path('mautic_customobjects_item_new', {objectName: objectName}) }}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-plus"></i> New</a>
+    </h3>
+  </div>
+  <div class="panel-body">
+    {% if items is empty %}
+      <p class="text-muted">{{ 'customobjects.no_items'|trans|default('No items yet.') }}</p>
+    {% else %}
+      <table class="table table-hover table-striped">
+        <thead><tr><th>ID</th><th>Contact</th>
+        {% for field in object.fields|default([]) %}<th>{{ field.label|default(field.name) }}</th>{% endfor %}
+        <th></th></tr></thead>
+        <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>#{{ item.contact_id }}</td>
+            {% for field in object.fields|default([]) %}<td>{{ attribute(item, field.name)|default('') }}</td>{% endfor %}
+            <td class="text-right">
+              <a href="{{ path('mautic_customobjects_item_edit', {objectName: objectName, itemId: item.id}) }}" class="btn btn-xs btn-default"><i class="fa fa-pencil"></i></a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <p class="text-muted">Total: {{ total|default(items|length) }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

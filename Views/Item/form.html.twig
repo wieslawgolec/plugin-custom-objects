@@ -1,0 +1,34 @@
+{% extends '@MauticCore/Default/content.html.twig' %}
+{% block headerTitle %}{% if item is defined and item.id is defined %}Edit #{{ item.id }}{% else %}New {{ object.singular|default(objectName) }}{% endif %}{% endblock %}
+{% block content %}
+<div class="panel panel-default"><div class="panel-body">
+<form method="post" id="custom-item-form"
+  action="{% if item is defined and item.id is defined %}{{ path('mautic_customobjects_item_edit', {objectName: objectName, itemId: item.id}) }}{% else %}{{ path('mautic_customobjects_item_new', {objectName: objectName}) }}{% endif %}">
+  <div class="form-group">
+    <label for="contact_id">Contact ID</label>
+    <input type="number" name="contact_id" id="contact_id" class="form-control" required
+      value="{{ item.contact_id|default(contactId|default('')) }}"
+      {% if item is defined and item.id is defined %}readonly{% endif %}>
+  </div>
+  {% for field in object.fields|default([]) %}
+  <div class="form-group">
+    <label for="field_{{ field.name }}">{{ field.label|default(field.name) }}</label>
+    {% if field.type == 'text' %}
+      <textarea name="{{ field.name }}" id="field_{{ field.name }}" class="form-control" rows="3">{{ attribute(item|default({}), field.name)|default('') }}</textarea>
+    {% elseif field.type == 'boolean' %}
+      <select name="{{ field.name }}" id="field_{{ field.name }}" class="form-control">
+        <option value="0" {% if attribute(item|default({}), field.name)|default(0) == 0 %}selected{% endif %}>No</option>
+        <option value="1" {% if attribute(item|default({}), field.name)|default(0) == 1 %}selected{% endif %}>Yes</option>
+      </select>
+    {% else %}
+      <input type="{% if field.type in ['integer','float','bigint'] %}number{% else %}text{% endif %}"
+        name="{{ field.name }}" id="field_{{ field.name }}" class="form-control"
+        value="{{ attribute(item|default({}), field.name)|default('') }}">
+    {% endif %}
+  </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{{ path('mautic_customobjects_item_index', {objectName: objectName}) }}" class="btn btn-default">Cancel</a>
+</form>
+</div></div>
+{% endblock %}
