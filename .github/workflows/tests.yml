@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, mautic7.x, 'feature/**']
+  pull_request:
+    branches: [main, mautic7.x]
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.5', '8.6']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: json, mbstring, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies (ignore missing mautic/core-lib)
+        run: |
+          # mautic/core-lib is not on public Packagist; provide a stub and
+          # install only the packages needed for unit tests.
+          composer config --no-plugins allow-plugins true || true
+          composer require --dev --no-update --no-interaction \
+            phpunit/phpunit:^11.5 \
+            doctrine/dbal:^3.0|^4.0 \
+            symfony/http-foundation:^6.4|^7.0 \
+            symfony/event-dispatcher:^6.4|^7.0 \
+            symfony/http-kernel:^6.4|^7.0
+          # Remove the hard dependency so Composer can resolve without it
+          composer remove --no-update mautic/core-lib || true
+          composer update --prefer-dist --no-progress --no-interaction --no-scripts
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --colors=always
