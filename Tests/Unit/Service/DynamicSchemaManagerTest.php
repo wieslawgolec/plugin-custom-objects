@@ -100,7 +100,12 @@ final class DynamicSchemaManagerTest extends TestCase
         $this->assertTrue($captured->hasColumn('car_model'));
         $this->assertTrue($captured->hasColumn('year'));
         $this->assertTrue($captured->hasColumn('notes'));
-        $this->assertTrue($captured->hasPrimaryKey());
+
+        // hasPrimaryKey() was removed in Doctrine DBAL 4; use getPrimaryKey() (DBAL 3 + 4)
+        $primaryKey = $captured->getPrimaryKey();
+        $this->assertNotNull($primaryKey, 'Table must have a primary key');
+        $this->assertSame(['id'], $primaryKey->getColumns());
+
         $this->assertTrue($captured->hasIndex('idx_contact_id'));
     }
 
