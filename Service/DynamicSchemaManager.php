@@ -146,6 +146,8 @@ class DynamicSchemaManager
 
     /**
      * Build the physical table name from a human object name.
+     *
+     * @throws InvalidArgumentException when the name has no alphanumeric characters
      */
     public function buildTableName(string $objectName): string
     {
@@ -159,6 +161,10 @@ class DynamicSchemaManager
 
     /**
      * Sanitize a string into a safe SQL identifier (lowercase, underscores).
+     *
+     * Returns an empty string when the input has no usable alphanumeric content
+     * (callers such as buildTableName must reject that).
+     * Names that start with a digit are prefixed with "obj_" so they remain valid identifiers.
      */
     public function sanitizeIdentifier(string $name): string
     {
@@ -166,8 +172,13 @@ class DynamicSchemaManager
         $name = preg_replace('/[^a-z0-9_]+/', '_', $name) ?? '';
         $name = trim($name, '_');
 
-        // Prevent reserved / empty
-        if ($name === '' || is_numeric($name[0] ?? '')) {
+        // Purely invalid input (e.g. "!!!") — do not invent a name
+        if ($name === '') {
+            return '';
+        }
+
+        // SQL identifiers should not start with a digit
+        if (is_numeric($name[0])) {
             $name = 'obj_' . $name;
         }
 
