@@ -44,13 +44,15 @@ jobs:
 
       - name: Install dependencies (ignore missing mautic/core-lib)
         run: |
+          # mautic/core-lib is not on public Packagist; install only packages needed for unit tests.
+          # Quote version constraints so shell does not interpret ^ or | as operators/pipes.
           composer config --no-plugins allow-plugins true || true
           composer require --dev --no-update --no-interaction \
-            phpunit/phpunit:^11.5 \
-            doctrine/dbal:^3.0|^4.0 \
-            symfony/http-foundation:^6.4|^7.0 \
-            symfony/event-dispatcher:^6.4|^7.0 \
-            symfony/http-kernel:^6.4|^7.0
+            "phpunit/phpunit:^11.5" \
+            "doctrine/dbal:^3.0 || ^4.0" \
+            "symfony/http-foundation:^6.4 || ^7.0" \
+            "symfony/event-dispatcher:^6.4 || ^7.0" \
+            "symfony/http-kernel:^6.4 || ^7.0"
           composer remove --no-update mautic/core-lib || true
           composer update --prefer-dist --no-progress --no-interaction --no-scripts
 
