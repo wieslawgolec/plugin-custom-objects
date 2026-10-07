@@ -1,56 +1,45 @@
 <?php
-
 declare(strict_types=1);
-
 return [
-    'name'        => 'Custom Objects Engine',
-    'description' => 'Unlocks infinite One-to-Many relational database entities within Mautic 7.2+ via dynamic Doctrine schema.',
-    'version'     => '1.0.0',
-    'author'      => 'Wieslaw Golec',
-
-    'routes' => [
-        'main' => [
-            'mautic_customobjects_schema_create' => [
-                'path'       => '/customobjects/schema/create',
-                'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::createAction',
-                'methods'    => ['POST'],
-            ],
-            'mautic_customobjects_schema_list' => [
-                'path'       => '/customobjects/schema/list',
-                'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::listAction',
-                'methods'    => ['GET'],
-            ],
-            'mautic_customobjects_schema_drop' => [
-                'path'       => '/customobjects/schema/drop/{objectName}',
-                'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::dropAction',
-                'methods'    => ['DELETE'],
-            ],
-        ],
-    ],
-
+    'name' => 'Custom Objects Engine',
+    'description' => 'Unlocks infinite One-to-Many relational database entities within Mautic 7.2+ via dynamic Doctrine schema. Full admin UI, Item CRUD, Segment filters, Import/Export, Permissions & Audit log.',
+    'version' => '1.1.0',
+    'author' => 'Wieslaw Golec',
+    'routes' => ['main' => [
+        'mautic_customobjects_object_index' => ['path' => '/customobjects/objects', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ObjectController::indexAction', 'methods' => ['GET']],
+        'mautic_customobjects_object_new' => ['path' => '/customobjects/objects/new', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ObjectController::newAction', 'methods' => ['POST']],
+        'mautic_customobjects_object_view' => ['path' => '/customobjects/objects/{objectName}', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ObjectController::viewAction', 'methods' => ['GET']],
+        'mautic_customobjects_object_delete' => ['path' => '/customobjects/objects/{objectName}/delete', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ObjectController::deleteAction', 'methods' => ['DELETE', 'POST']],
+        'mautic_customobjects_schema_create' => ['path' => '/customobjects/schema/create', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::createAction', 'methods' => ['POST']],
+        'mautic_customobjects_schema_list' => ['path' => '/customobjects/schema/list', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::listAction', 'methods' => ['GET']],
+        'mautic_customobjects_schema_drop' => ['path' => '/customobjects/schema/drop/{objectName}', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\SchemaController::dropAction', 'methods' => ['DELETE']],
+        'mautic_customobjects_item_index' => ['path' => '/customobjects/{objectName}/items', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ItemController::indexAction', 'methods' => ['GET']],
+        'mautic_customobjects_item_new' => ['path' => '/customobjects/{objectName}/items/new', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ItemController::newAction', 'methods' => ['POST']],
+        'mautic_customobjects_item_view' => ['path' => '/customobjects/{objectName}/items/{itemId}', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ItemController::viewAction', 'methods' => ['GET']],
+        'mautic_customobjects_item_edit' => ['path' => '/customobjects/{objectName}/items/{itemId}/edit', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ItemController::editAction', 'methods' => ['POST', 'PUT', 'PATCH']],
+        'mautic_customobjects_item_delete' => ['path' => '/customobjects/{objectName}/items/{itemId}/delete', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ItemController::deleteAction', 'methods' => ['DELETE', 'POST']],
+        'mautic_customobjects_export_csv' => ['path' => '/customobjects/{objectName}/export/csv', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ImportExportController::exportCsvAction', 'methods' => ['GET']],
+        'mautic_customobjects_import_csv' => ['path' => '/customobjects/{objectName}/import/csv', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ImportExportController::importCsvAction', 'methods' => ['POST']],
+        'mautic_customobjects_export_definition' => ['path' => '/customobjects/{objectName}/export/definition', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ImportExportController::exportDefinitionAction', 'methods' => ['GET']],
+        'mautic_customobjects_import_definition' => ['path' => '/customobjects/import/definition', 'controller' => 'MauticPlugin\CustomObjectsBundle\Controller\ImportExportController::importDefinitionAction', 'methods' => ['POST']],
+    ]],
     'services' => [
         'events' => [
-            'mautic.customobjects.campaign.subscriber' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\EventSubscriber\CampaignSubscriber::class,
-                'arguments' => [
-                    'database_connection',
-                    'mautic.customobjects.schema_manager',
-                ],
-            ],
+            'mautic.customobjects.campaign.subscriber' => ['class' => \MauticPlugin\CustomObjectsBundle\EventSubscriber\CampaignSubscriber::class, 'arguments' => ['database_connection', 'mautic.customobjects.schema_manager']],
+            'mautic.customobjects.segment.subscriber' => ['class' => \MauticPlugin\CustomObjectsBundle\EventSubscriber\SegmentFilterSubscriber::class, 'arguments' => ['mautic.customobjects.registry', 'mautic.customobjects.item_repository']],
         ],
         'other' => [
-            'mautic.customobjects.schema_manager' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Service\DynamicSchemaManager::class,
-                'arguments' => [
-                    'database_connection',
-                ],
-            ],
-            'mautic.customobjects.schema_controller' => [
-                'class'     => \MauticPlugin\CustomObjectsBundle\Controller\SchemaController::class,
-                'arguments' => [
-                    'mautic.customobjects.schema_manager',
-                ],
-            ],
+            'mautic.customobjects.schema_manager' => ['class' => \MauticPlugin\CustomObjectsBundle\Service\DynamicSchemaManager::class, 'arguments' => ['database_connection']],
+            'mautic.customobjects.registry' => ['class' => \MauticPlugin\CustomObjectsBundle\Service\CustomObjectRegistry::class, 'arguments' => ['database_connection', 'mautic.customobjects.schema_manager']],
+            'mautic.customobjects.item_repository' => ['class' => \MauticPlugin\CustomObjectsBundle\Service\CustomItemRepository::class, 'arguments' => ['database_connection', 'mautic.customobjects.schema_manager', 'mautic.customobjects.registry']],
+            'mautic.customobjects.import_export' => ['class' => \MauticPlugin\CustomObjectsBundle\Service\ImportExportService::class, 'arguments' => ['mautic.customobjects.item_repository', 'mautic.customobjects.registry', 'mautic.customobjects.schema_manager']],
+            'mautic.customobjects.audit_logger' => ['class' => \MauticPlugin\CustomObjectsBundle\Service\AuditLogger::class, 'arguments' => ['database_connection']],
+            'mautic.customobjects.permissions' => ['class' => \MauticPlugin\CustomObjectsBundle\Security\CustomObjectsPermissions::class],
+            'mautic.customobjects.schema_controller' => ['class' => \MauticPlugin\CustomObjectsBundle\Controller\SchemaController::class, 'arguments' => ['mautic.customobjects.schema_manager']],
+            'mautic.customobjects.object_controller' => ['class' => \MauticPlugin\CustomObjectsBundle\Controller\ObjectController::class, 'arguments' => ['mautic.customobjects.registry', 'mautic.customobjects.audit_logger', 'mautic.customobjects.permissions']],
+            'mautic.customobjects.item_controller' => ['class' => \MauticPlugin\CustomObjectsBundle\Controller\ItemController::class, 'arguments' => ['mautic.customobjects.item_repository', 'mautic.customobjects.registry', 'mautic.customobjects.audit_logger', 'mautic.customobjects.permissions']],
+            'mautic.customobjects.import_export_controller' => ['class' => \MauticPlugin\CustomObjectsBundle\Controller\ImportExportController::class, 'arguments' => ['mautic.customobjects.import_export', 'mautic.customobjects.audit_logger', 'mautic.customobjects.permissions']],
         ],
     ],
+    'menu' => ['main' => ['priority' => 70, 'items' => ['mautic.customobjects' => ['id' => 'mautic_customobjects_root', 'iconClass' => 'fa-cubes', 'access' => 'customobjects:objects:view', 'route' => 'mautic_customobjects_object_index']]]],
 ];
