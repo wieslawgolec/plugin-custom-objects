@@ -5,6 +5,7 @@ on:
     branches: [main, mautic7.x, 'feature/**']
   pull_request:
     branches: [main, mautic7.x]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,7 +27,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: json, mbstring, pdo_sqlite
+          extensions: json, mbstring, pdo_sqlite, dom
           coverage: none
           tools: composer:v2
 
@@ -43,8 +44,6 @@ jobs:
 
       - name: Install dependencies (ignore missing mautic/core-lib)
         run: |
-          # mautic/core-lib is not on public Packagist; provide a stub and
-          # install only the packages needed for unit tests.
           composer config --no-plugins allow-plugins true || true
           composer require --dev --no-update --no-interaction \
             phpunit/phpunit:^11.5 \
@@ -52,7 +51,6 @@ jobs:
             symfony/http-foundation:^6.4|^7.0 \
             symfony/event-dispatcher:^6.4|^7.0 \
             symfony/http-kernel:^6.4|^7.0
-          # Remove the hard dependency so Composer can resolve without it
           composer remove --no-update mautic/core-lib || true
           composer update --prefer-dist --no-progress --no-interaction --no-scripts
 

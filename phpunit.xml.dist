@@ -17,6 +17,7 @@
             <directory suffix=".php">Service</directory>
             <directory suffix=".php">EventSubscriber</directory>
             <directory suffix=".php">Controller</directory>
+            <directory suffix=".php">Security</directory>
         </include>
     </source>
 </phpunit>
