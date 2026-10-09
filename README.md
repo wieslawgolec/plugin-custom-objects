@@ -4,7 +4,7 @@
 
 Dynamically creates database tables linked to Contacts via Doctrine SchemaManager, with a full admin UI, Item CRUD, Campaign decisions, Segment filters, CSV/JSON import-export, permissions, and audit logging — comparable in scope to HubSpot Custom Objects.
 
-**Current version: 1.1.0** (production-ready core)
+**Current version: 1.1.0**
 
 ---
 
@@ -245,7 +245,7 @@ GitHub Actions workflow `.github/workflows/tests.yml`:
 
 ---
 
-## Production readiness checklist
+## Readiness checklist
 
 | Item | Status |
 |------|--------|
@@ -262,7 +262,7 @@ GitHub Actions workflow `.github/workflows/tests.yml`:
 | Segment *query* execution in core LeadList query builder | Optional hardening (IDs resolved via repository today) |
 | Multi-tenant table prefix edge cases under heavy load | Ops-dependent |
 
-The plugin is **usable in production** for defining objects, storing contact-linked rows, campaign checks, CSV interchange, and audited changes. Segment *choice registration* is complete; full native LeadList SQL integration may need a small adapter on some Mautic minor versions.
+The plugin is **usable for internal testing** for defining objects, storing contact-linked rows, campaign checks, CSV interchange, and audited changes. Segment *choice registration* is complete; full native LeadList SQL integration may need a small adapter on some Mautic minor versions.
 
 ---
 
@@ -270,8 +270,6 @@ The plugin is **usable in production** for defining objects, storing contact-lin
 
 - **GitHub Sponsors:** [github.com/sponsors/wieslawgolec](https://github.com/sponsors/wieslawgolec)
 - **Buy Me a Coffee:** [buymeacoffee.com/wieslawgolec](https://buymeacoffee.com/wieslawgolec)
-
-Use the **Sponsor** button on this repository for the same links.
 
 ---
 
